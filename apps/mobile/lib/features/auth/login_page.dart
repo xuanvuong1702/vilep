@@ -231,11 +231,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 'và Chính sách quyền riêng tư của Ví Lép.',
                 style: TextStyle(fontSize: 11.5, color: V.muted, height: 1.5),
               ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _openServerDialog(context, ref),
+                  icon: const Icon(Icons.dns_outlined, size: 15, color: V.muted),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+                  label: Text(
+                    'Máy chủ: ${ref.watch(serverBaseProvider).replaceFirst('http://', '')}',
+                    style: const TextStyle(fontSize: 11, color: V.muted),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _openServerDialog(BuildContext context, WidgetRef ref) async {
+    final controller = TextEditingController(text: ref.read(serverBaseProvider));
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Địa chỉ máy chủ API'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(labelText: 'API base URL', hintText: 'http://192.168.1.30:5080'),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Dùng 10.0.2.2 khi chạy trên Android emulator, hoặc IP LAN của máy tính khi chạy APK trên điện thoại.',
+              style: TextStyle(fontSize: 11.5, color: V.muted, height: 1.45),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Huỷ')),
+          FilledButton(
+            onPressed: () async {
+              await ref.read(serverBaseProvider.notifier).update(controller.text);
+              if (context.mounted) Navigator.pop(context, true);
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (saved == true && context.mounted) {
+      showSnack(context, 'Đã đổi máy chủ API');
+    }
   }
 }
 

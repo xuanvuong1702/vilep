@@ -21,8 +21,10 @@ Bản MVP chạy được của **Ví Lép** theo `vi_lep_requirements_v0.4.md`:
 
 ## 1. Chạy trong 5 phút
 
+App là **một codebase Flutter duy nhất** (22 file Dart, ~5.500 dòng) cho iOS / Android / web. Trong repo chỉ build sẵn bản **web** vì máy dev hiện tại chưa có Android SDK; bản Android dùng chung toàn bộ `lib/`.
+
 ```bash
-# 1) API (http://127.0.0.1:5080)
+# 1) API (http://127.0.0.1:5080, LAN: http://<ip>:5080)
 cd apps/api
 dotnet run --project Vilep.Api
 
@@ -33,10 +35,19 @@ flutter run -d chrome --dart-define=API_BASE=http://127.0.0.1:5080
 
 # hoặc: build bản demo tự đăng nhập + phục vụ ở http://127.0.0.1:8080
 pwsh ../../scripts/serve-web.ps1
+
+# 3) APK Android (máy có Android SDK + JDK)
+pwsh ../../scripts/build-apk.ps1 -ApiBase http://192.168.1.30:5080
+# hoặc: mở apps/mobile bằng Android Studio → Run / Build APK
 ```
+
+> Máy này đã cài sẵn Android SDK 36 + JDK 21 trong `tools/`, nhưng DSH sandbox chặn tiến trình con của Gradle (aapt2/kotlin worker dùng pipe) nên `flutter build apk` dừng giữa chừng. Chạy `scripts/build-apk.ps1` trên máy/CI không bị sandbox (hoặc trong Android Studio) là ra `app-release.apk`.
+>
+> Trên điện thoại, mở `http://<ip-máy-tính>:8080` rồi "Thêm vào màn hình chính" để dùng ngay bản web như app (PWA), không cần APK.
 
 > Cờ build cho demo/screenshot: `--dart-define=DEMO_PHONE=0900000001 --dart-define=SKIP_ONBOARDING=true`
 > (tự đăng nhập OTP dev và bỏ qua onboarding). Không dùng cho bản phát hành store.
+> Đổi server API ngay trong app ở màn đăng nhập (nút "Máy chủ: ...") — không cần build lại.
 
 Lần chạy đầu, API tự tạo DB SQLite (`Vilep.Api/bin/.../App_Data/vilep.db`) và **seed dữ liệu demo**: 6 người dùng, 9 case đủ trạng thái (đang gọi vốn, sắp xong, đã trả nợ, đã hoàn tiền, chờ chủ nợ xác nhận).
 

@@ -13,8 +13,24 @@ const bool kSkipOnboarding = bool.fromEnvironment('SKIP_ONBOARDING');
 
 final prefsProvider = Provider<SharedPreferences>((ref) => throw UnimplementedError('prefs not provided'));
 
+/// API base URL, editable at runtime from the login screen so an APK can point
+/// at a LAN machine / staging server without rebuilding.
+class ServerController extends Notifier<String> {
+  @override
+  String build() => ref.watch(prefsProvider).getString('api_base') ?? kApiBase;
+
+  Future<void> update(String url) async {
+    final normalized = url.trim().replaceAll(RegExp(r'/+$'), '');
+    await ref.read(prefsProvider).setString('api_base', normalized);
+    state = normalized;
+  }
+}
+
+final serverBaseProvider = NotifierProvider<ServerController, String>(ServerController.new);
+
 final apiProvider = Provider<ApiClient>((ref) {
-  final api = ApiClient();
+  final base = ref.watch(serverBaseProvider);
+  final api = ApiClient(baseUrl: base);
   final prefs = ref.watch(prefsProvider);
   api.token = prefs.getString('access_token');
   return api;

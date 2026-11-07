@@ -125,6 +125,12 @@ class _CreateCasePageState extends ConsumerState<CreateCasePage> {
           icon: const Icon(Icons.close_rounded),
           onPressed: () => _step == 0 ? context.pop() : setState(() => _step -= 1),
         ),
+        bottom: _step >= 3
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(22),
+                child: _StepProgress(step: _step),
+              ),
       ),
       body: metaAsync.when(
         loading: () => const LoadingView(),
@@ -152,17 +158,36 @@ class _CreateCasePageState extends ConsumerState<CreateCasePage> {
 
   Widget _templateStep(MetaConfig meta) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
+      physics: const BouncingScrollPhysics(),
       children: [
-        const Text('Chọn mẫu nợ vui', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.9)),
+        const Text('Chọn mẫu nợ vui',
+            style: TextStyle(fontSize: 30, height: 1.08, fontWeight: FontWeight.w800, letterSpacing: -1.0)),
         const SizedBox(height: 6),
-        const Text('Chọn mẫu để điền sẵn — bạn sửa lại được ở bước sau.',
-            style: TextStyle(color: V.muted, fontSize: 13.5)),
+        const Text('Điền sẵn tiêu đề, số tiền và lời kể — bạn sửa lại được ở bước sau.',
+            style: TextStyle(color: V.muted, fontSize: 13, height: 1.5)),
+        const SizedBox(height: 20),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: meta.templates.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.24,
+          ),
+          itemBuilder: (context, index) {
+            final template = meta.templates[index];
+            return _TemplateTile(template: template, onTap: () => _applyTemplate(template, meta));
+          },
+        ),
         const SizedBox(height: 18),
-        ...meta.templates.map((template) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _TemplateTile(template: template, onTap: () => _applyTemplate(template, meta)),
-            )),
+        const InfoCard(
+          icon: Icons.lightbulb_outline_rounded,
+          title: 'Không thấy mẫu hợp?',
+          body: 'Cứ chọn mẫu gần nhất rồi sửa tiêu đề và lời kể ở bước sau. Mẫu chỉ để điền sẵn cho nhanh.',
+        ),
       ],
     );
   }
@@ -418,42 +443,94 @@ class _TemplateTile extends StatelessWidget {
 
   const _TemplateTile({required this.template, required this.onTap});
 
+  static const _tints = <String, String>{
+    'tra-sua': '#F6D7CE',
+    'nhau': '#F8DFA8',
+    'ca-cuoc': '#C9E4F5',
+    'an-uong': '#CDEBD9',
+    'qua-sinh-nhat': '#E4D3F0',
+    'muon-tien': '#CFE0FA',
+  };
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: V.surface,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(border: Border.all(color: V.line), borderRadius: BorderRadius.circular(16)),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(color: V.canvas, borderRadius: BorderRadius.circular(14)),
-                child: Text(template.emoji, style: const TextStyle(fontSize: 24)),
+    final tint = _tints[template.category] ?? '#D9F2E4';
+    return PressableScale(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: V.surface,
+          borderRadius: BorderRadius.circular(V.r20),
+          border: Border.all(color: V.line),
+          boxShadow: V.cardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 68,
+              width: double.infinity,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: coverGradient(tint),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(V.r20)),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(template.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                    const SizedBox(height: 2),
-                    Text('${money(template.amount)} · ${categoryLabel(template.category)}',
-                        style: const TextStyle(fontSize: 12, color: V.muted)),
-                  ],
+              child: Text(template.emoji, style: const TextStyle(fontSize: 32)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 36,
+                    child: Text(
+                      template.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12.5, height: 1.28, fontWeight: FontWeight.w800, letterSpacing: -0.2),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(money(template.amount),
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: V.greenDark)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StepProgress extends StatelessWidget {
+  final int step;
+
+  const _StepProgress({required this.step});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: Row(
+        children: [
+          for (var i = 0; i < 3; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            Expanded(
+              child: AnimatedContainer(
+                duration: V.fast,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: i <= step ? V.green : V.line,
+                  borderRadius: BorderRadius.circular(V.rPill),
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: V.muted),
-            ],
-          ),
-        ),
+            ),
+          ],
+          const SizedBox(width: 10),
+          Text('${step + 1}/3', style: const TextStyle(fontSize: 10.5, color: V.muted, fontWeight: FontWeight.w700)),
+        ],
       ),
     );
   }

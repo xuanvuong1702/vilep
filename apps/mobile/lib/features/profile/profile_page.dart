@@ -43,91 +43,120 @@ class ProfilePage extends ConsumerWidget {
         title: const Text('Hồ sơ'),
         actions: [
           IconButton(onPressed: () => ref.read(authProvider.notifier).refreshMe(), icon: const Icon(Icons.refresh_rounded)),
+          const SizedBox(width: 6),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFFF2FFF8), V.surface], begin: Alignment.topLeft, end: Alignment.bottomRight),
-              borderRadius: BorderRadius.circular(22),
+              color: V.surface,
+              borderRadius: BorderRadius.circular(V.r24),
               border: Border.all(color: V.line),
+              boxShadow: V.cardShadow,
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    AvatarBubble(name: user.nickname, avatarKey: user.avatarKey, size: 60),
+                    AvatarBubble(name: user.nickname, avatarKey: user.avatarKey, size: 62, ring: true),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(user.nickname, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
+                          Text(user.nickname,
+                              style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
                           const SizedBox(height: 2),
-                          Text(_maskPhone(user.phone), style: const TextStyle(fontSize: 12.5, color: V.muted)),
-                          const SizedBox(height: 6),
+                          Text(_maskPhone(user.phone), style: const TextStyle(fontSize: 12, color: V.muted)),
+                          const SizedBox(height: 8),
                           Row(
                             children: [
                               _badge(kycLabel, user.kycTier >= 1 ? V.greenSoft : V.canvas,
                                   user.kycTier >= 1 ? V.greenDark : V.muted),
                               const SizedBox(width: 6),
-                              _badge('${user.trustScore} điểm tin cậy', V.canvas, V.muted),
+                              _badge('${user.trustScore} điểm', V.canvas, V.muted),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => _editProfile(context, ref, user.nickname, user.bio),
-                      icon: const Icon(Icons.edit_outlined, size: 18),
+                    GestureDetector(
+                      onTap: () => _editProfile(context, ref, user.nickname, user.bio),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(color: V.canvas, shape: BoxShape.circle, border: Border.all(color: V.line)),
+                        child: const Icon(Icons.edit_outlined, size: 17, color: V.ink2),
+                      ),
                     ),
                   ],
                 ),
                 if (user.bio.isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  Text(user.bio, style: const TextStyle(fontSize: 13, height: 1.5, color: V.inkSoft)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(user.bio, style: const TextStyle(fontSize: 12.5, height: 1.55, color: V.muted)),
+                  ),
                 ],
               ],
             ),
           ),
           const SizedBox(height: 14),
           stats.when(
-            loading: () => const SizedBox(height: 84, child: LoadingView(label: '')),
-            error: (_, __) => const SizedBox.shrink(),
+            loading: () => const SizedBox(height: 80, child: LoadingView()),
+            error: (_, _) => const SizedBox.shrink(),
             data: (data) => Row(
               children: [
-                _stat('${data['casesCreated'] ?? 0}', 'case đã tạo'),
-                _stat('${data['rescues'] ?? 0}', 'lần cứu nợ'),
-                _stat(moneyShort((data['rescuedAmount'] as num?)?.toInt() ?? 0), 'tiền đã cứu'),
+                StatTile(
+                  icon: Icons.assignment_outlined,
+                  value: '${data['casesCreated'] ?? 0}',
+                  label: 'case đã tạo',
+                ),
+                const SizedBox(width: 8),
+                StatTile(
+                  icon: Icons.favorite_border_rounded,
+                  value: '${data['rescues'] ?? 0}',
+                  label: 'lần cứu nợ',
+                ),
+                const SizedBox(width: 8),
+                StatTile(
+                  icon: Icons.savings_outlined,
+                  value: moneyShort((data['rescuedAmount'] as num?)?.toInt() ?? 0),
+                  label: 'tiền đã cứu',
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 14),
-          _menuGroup(context, ref, [
+          const SizedBox(height: 24),
+          const _GroupLabel('Tài khoản & xác minh'),
+          _Group(items: [
             _MenuItem(
               icon: Icons.verified_user_outlined,
-              title: user.kycTier >= 1 ? 'Xác minh danh tính (eKYC)' : 'Xác minh để nhận tiền',
-              subtitle: user.kycTier >= 1 ? kycLabel : 'Cần eKYC bậc 1 để mở case chế độ A',
+              title: user.kycTier >= 1 ? 'Xác minh danh tính' : 'Xác minh để nhận tiền',
+              subtitle: user.kycTier >= 1 ? 'Đã xác minh CCCD + selfie' : 'Cần eKYC bậc 1 để mở case chế độ A',
+              trailing: user.kycTier >= 1 ? null : 'Cần làm',
+              trailingAccent: user.kycTier < 1,
               onTap: () => context.push('/kyc'),
             ),
             _MenuItem(
               icon: Icons.account_balance_outlined,
               title: 'Tài khoản nhận tiền',
-              subtitle: 'Thêm tài khoản để nhận hoàn tiền / rút tiền',
+              subtitle: 'Nhận hoàn tiền / rút tiền về tài khoản của bạn',
               onTap: () => context.push('/banks'),
             ),
+          ]),
+          const SizedBox(height: 20),
+          const _GroupLabel('Cài đặt'),
+          _Group(items: [
             _MenuItem(
               icon: Icons.notifications_none_rounded,
               title: 'Thông báo',
-              subtitle: 'Cài đặt và hộp thư',
+              subtitle: 'Hộp thư và cài đặt nhận tin',
               onTap: () => context.go('/notifications'),
             ),
-          ]),
-          const SizedBox(height: 12),
-          _menuGroup(context, ref, [
             _MenuItem(
               icon: Icons.shield_outlined,
               title: 'An toàn & quyền riêng tư',
@@ -137,8 +166,22 @@ class ProfilePage extends ConsumerWidget {
             _MenuItem(
               icon: Icons.description_outlined,
               title: 'Điều khoản & chính sách',
-              subtitle: 'Điều khoản sử dụng, hoàn tiền, quyền riêng tư',
+              subtitle: 'Sử dụng, hoàn tiền, quyền riêng tư',
               onTap: () => showSnack(context, 'Xem điều khoản tại vilep.vn/terms (bản demo)'),
+            ),
+          ]),
+          const SizedBox(height: 20),
+          const _GroupLabel('Khác'),
+          _Group(items: [
+            _MenuItem(
+              icon: Icons.logout_rounded,
+              title: 'Đăng xuất',
+              subtitle: 'Thoát khỏi thiết bị này',
+              onTap: () async {
+                await ref.read(authProvider.notifier).signOut();
+                if (!context.mounted) return;
+                context.go('/discover');
+              },
             ),
             _MenuItem(
               icon: Icons.delete_outline_rounded,
@@ -148,20 +191,19 @@ class ProfilePage extends ConsumerWidget {
               onTap: () => _deleteAccount(context, ref),
             ),
           ]),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () async {
-              await ref.read(authProvider.notifier).signOut();
-              if (!context.mounted) return;
-              context.go('/discover');
-            },
-            icon: const Icon(Icons.logout_rounded, size: 18),
-            label: const Text('Đăng xuất'),
-          ),
-          const SizedBox(height: 18),
-          const Center(
-            child: Text('Ví Lép · MVP 0.4 · Ví lép, bạn bè lo!',
-                style: TextStyle(fontSize: 11, color: V.muted)),
+          const SizedBox(height: 26),
+          Center(
+            child: Column(
+              children: [
+                const WalletMascot(progress: 0.55, size: 54),
+                const SizedBox(height: 8),
+                Text('Ví Lép · MVP 0.4',
+                    style: TextStyle(fontSize: 11, color: V.muted.withValues(alpha: 0.9), fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text('Ví lép, bạn bè lo!',
+                    style: TextStyle(fontSize: 11, color: V.faint.withValues(alpha: 0.9))),
+              ],
+            ),
           ),
         ],
       ),
@@ -171,70 +213,8 @@ class ProfilePage extends ConsumerWidget {
   Widget _badge(String label, Color bg, Color fg) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: fg)),
-    );
-  }
-
-  Widget _stat(String value, String label) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(color: V.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: V.line)),
-        child: Column(
-          children: [
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 2),
-            Text(label, style: const TextStyle(fontSize: 10.5, color: V.muted)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuGroup(BuildContext context, WidgetRef ref, List<_MenuItem> items) {
-    return Container(
-      decoration: BoxDecoration(color: V.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: V.line)),
-      child: Column(
-        children: [
-          for (var i = 0; i < items.length; i++) ...[
-            if (i > 0) const Divider(indent: 56, endIndent: 16),
-            InkWell(
-              onTap: items[i].onTap,
-              borderRadius: BorderRadius.circular(18),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Icon(items[i].icon, size: 20, color: items[i].danger ? V.danger : V.inkSoft),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(items[i].title,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: items[i].danger ? V.danger : V.ink,
-                              )),
-                          if (items[i].subtitle != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(items[i].subtitle!, style: const TextStyle(fontSize: 11.5, color: V.muted)),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded, size: 18, color: V.muted),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(V.rPill)),
+      child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg)),
     );
   }
 
@@ -249,15 +229,22 @@ class ProfilePage extends ConsumerWidget {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(left: 20, right: 20, bottom: 20 + MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Sửa hồ sơ', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 14),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 18),
+                decoration: BoxDecoration(color: V.line, borderRadius: BorderRadius.circular(99)),
+              ),
+            ),
+            const Text('Sửa hồ sơ', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
+            const SizedBox(height: 16),
             TextField(controller: nicknameController, decoration: const InputDecoration(labelText: 'Biệt danh')),
             const SizedBox(height: 12),
             TextField(
@@ -281,7 +268,7 @@ class ProfilePage extends ConsumerWidget {
                     if (context.mounted) showSnack(context, e.message, error: true);
                   }
                 },
-                child: const Text('Lưu'),
+                child: const Text('Lưu thay đổi'),
               ),
             ),
           ],
@@ -324,10 +311,109 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
+class _GroupLabel extends StatelessWidget {
+  final String text;
+
+  const _GroupLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(text.toUpperCase(),
+          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: V.faint)),
+    );
+  }
+}
+
+class _Group extends StatelessWidget {
+  final List<_MenuItem> items;
+
+  const _Group({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: V.surface, borderRadius: BorderRadius.circular(V.r20), border: Border.all(color: V.line)),
+      child: Column(
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const Divider(indent: 58, endIndent: 16),
+            _Row(item: items[i]),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  final _MenuItem item;
+
+  const _Row({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(V.r20),
+      onTap: item.onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: item.danger ? V.dangerSoft : V.canvas,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(item.icon, size: 18, color: item.danger ? V.danger : V.ink2),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: item.danger ? V.danger : V.ink,
+                        letterSpacing: -0.1,
+                      )),
+                  if (item.subtitle != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(item.subtitle!, style: const TextStyle(fontSize: 11, color: V.muted)),
+                    ),
+                ],
+              ),
+            ),
+            if (item.trailing != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text(item.trailing!,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: item.trailingAccent ? V.amber : V.greenDark,
+                    )),
+              ),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: V.faint),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MenuItem {
   final IconData icon;
   final String title;
   final String? subtitle;
+  final String? trailing;
+  final bool trailingAccent;
   final VoidCallback onTap;
   final bool danger;
 
@@ -336,6 +422,8 @@ class _MenuItem {
     required this.title,
     required this.onTap,
     this.subtitle,
+    this.trailing,
+    this.trailingAccent = false,
     this.danger = false,
   });
 }

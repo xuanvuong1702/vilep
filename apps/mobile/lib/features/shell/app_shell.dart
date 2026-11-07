@@ -43,15 +43,15 @@ class AppShell extends ConsumerWidget {
               children: [
                 _NavItem(
                   icon: Icons.explore_outlined,
-                  activeIcon: Icons.explore,
+                  activeIcon: Icons.explore_rounded,
                   label: 'Khám phá',
                   active: _index == 0,
                   onTap: () => _go(context, '/discover', 0),
                 ),
                 _NavItem(
                   icon: Icons.account_balance_wallet_outlined,
-                  activeIcon: Icons.account_balance_wallet,
-                  label: 'Case của tôi',
+                  activeIcon: Icons.account_balance_wallet_rounded,
+                  label: 'Case',
                   active: _index == 1,
                   onTap: () => _go(context, '/my', 1),
                 ),
@@ -60,16 +60,17 @@ class AppShell extends ConsumerWidget {
                     child: GestureDetector(
                       onTap: () => context.push('/create'),
                       child: Container(
-                        width: 50,
-                        height: 50,
+                        width: 52,
+                        height: 52,
                         decoration: BoxDecoration(
                           color: V.green,
                           shape: BoxShape.circle,
+                          border: Border.all(color: V.surface, width: 4),
                           boxShadow: [
-                            BoxShadow(color: V.green.withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
+                            BoxShadow(color: V.green.withValues(alpha: 0.32), blurRadius: 18, offset: const Offset(0, 8)),
                           ],
                         ),
-                        child: const Icon(Icons.add_rounded, color: Color(0xFF04170E), size: 28),
+                        child: const Icon(Icons.add_rounded, color: V.greenInk, size: 26),
                       ),
                     ),
                   ),
@@ -120,38 +121,55 @@ class _NavItem extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(active ? activeIcon : icon, size: 23, color: active ? V.ink : V.muted),
+                AnimatedContainer(
+                  duration: V.fast,
+                  width: 38,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active ? V.greenSoft : Colors.transparent,
+                    borderRadius: BorderRadius.circular(V.rPill),
+                  ),
+                  child: Icon(active ? activeIcon : icon, size: 21, color: active ? V.greenDark : V.muted),
+                ),
                 if (badge > 0)
                   Positioned(
-                    right: -6,
-                    top: -3,
+                    right: 2,
+                    top: -2,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       constraints: const BoxConstraints(minWidth: 15),
                       height: 15,
                       alignment: Alignment.center,
-                      decoration: BoxDecoration(color: V.danger, borderRadius: BorderRadius.circular(999)),
+                      decoration: BoxDecoration(
+                        color: V.danger,
+                        borderRadius: BorderRadius.circular(V.rPill),
+                        border: Border.all(color: V.surface, width: 1.5),
+                      ),
                       child: Text(
                         badge > 9 ? '9+' : '$badge',
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800),
+                        style: const TextStyle(color: Colors.white, fontSize: 8.5, fontWeight: FontWeight.w800),
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 10,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
                 color: active ? V.ink : V.muted,
+                letterSpacing: -0.1,
               ),
             ),
           ],

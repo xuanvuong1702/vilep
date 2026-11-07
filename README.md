@@ -12,6 +12,11 @@ Bản MVP chạy được của **Ví Lép** theo `vi_lep_requirements_v0.4.md`:
 | Thanh toán | Mock gateway ký HMAC + webhook thật; adapter PayOS (cần key) |
 | Tests | 22 test backend (luồng tiền + máy trạng thái) + test widget Flutter |
 
+![Feed](shots/01-feed.png)
+![Chi tiết case](shots/02-case-detail.png)
+![Thanh toán](shots/03-contribute-sheet.png)
+![Giấy chứng nhận](shots/09-certificate.png)
+
 ---
 
 ## 1. Chạy trong 5 phút
@@ -21,11 +26,17 @@ Bản MVP chạy được của **Ví Lép** theo `vi_lep_requirements_v0.4.md`:
 cd apps/api
 dotnet run --project Vilep.Api
 
-# 2) App (web, mở http://127.0.0.1:8080)
+# 2) App (web)
 cd apps/mobile
 flutter pub get
 flutter run -d chrome --dart-define=API_BASE=http://127.0.0.1:5080
+
+# hoặc: build bản demo tự đăng nhập + phục vụ ở http://127.0.0.1:8080
+pwsh ../../scripts/serve-web.ps1
 ```
+
+> Cờ build cho demo/screenshot: `--dart-define=DEMO_PHONE=0900000001 --dart-define=SKIP_ONBOARDING=true`
+> (tự đăng nhập OTP dev và bỏ qua onboarding). Không dùng cho bản phát hành store.
 
 Lần chạy đầu, API tự tạo DB SQLite (`Vilep.Api/bin/.../App_Data/vilep.db`) và **seed dữ liệu demo**: 6 người dùng, 9 case đủ trạng thái (đang gọi vốn, sắp xong, đã trả nợ, đã hoàn tiền, chờ chủ nợ xác nhận).
 
@@ -166,3 +177,8 @@ GET  /api/v1/admin/stats|invariants|payouts|reports|config|audit
 ## 8. Giấy phép
 
 Mã nguồn demo cho mục đích đánh giá sản phẩm. Font **Be Vietnam Pro** (OFL-1.1) đi kèm trong `apps/mobile/assets/fonts`.
+
+### Ảnh các màn hình khác
+
+[Case của tôi](shots/04-my-cases.png) · [Hồ sơ](shots/05-profile.png) · [Thông báo](shots/06-notifications.png) ·
+[Tạo case](shots/07-create.png) · [Chủ nợ xác nhận](shots/08-creditor-invite.png)

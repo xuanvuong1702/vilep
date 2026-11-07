@@ -1,0 +1,45 @@
+name: vilep_app
+description: "Ví Lép — app cộng đồng xoá nợ giúp nhau (MVP P1)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.5.0
+  go_router: ^18.1.3
+  dio: ^5.11.1
+  intl: ^0.20.3
+  shared_preferences: ^2.5.6
+  url_launcher: ^6.3.3
+  confetti: ^0.8.0
+  cached_network_image: ^4.0.6
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: BeVietnamPro
+      fonts:
+        - asset: assets/fonts/BeVietnamPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/BeVietnamPro-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/BeVietnamPro-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/BeVietnamPro-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/BeVietnamPro-Black.ttf
+          weight: 900

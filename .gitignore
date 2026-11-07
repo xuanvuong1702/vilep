@@ -1,0 +1,29 @@
+# .NET
+bin/
+obj/
+*.user
+App_Data/
+appsettings.Local.json
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+android/.gradle/
+android/local.properties
+
+# Logs & local DB
+*.log
+vilep.db
+vilep.db-shm
+vilep.db-wal
+test-data/
+
+# Tooling
+.vscode/
+.idea/
+node_modules/
+.env

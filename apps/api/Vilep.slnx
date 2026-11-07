@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Vilep.Api/Vilep.Api.csproj" />
+  <Project Path="Vilep.Tests/Vilep.Tests.csproj" />
+</Solution>

@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vilep-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vilep
+      POSTGRES_USER: vilep
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vilep}
+    ports:
+      - "5432:5432"
+    volumes:
+      - vilep-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vilep -d vilep"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vilep-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      Database__Provider: postgres
+      Database__ConnectionString: Host=postgres;Port=5432;Database=vilep;Username=vilep;Password=${POSTGRES_PASSWORD:-vilep}
+      Jwt__Key: ${JWT_KEY:-change-me-in-production-0123456789abcdef0123456789}
+      Payments__Provider: ${PAYMENTS_PROVIDER:-mock}
+      Payments__WebhookSecret: ${WEBHOOK_SECRET:-change-me-webhook-secret}
+      Payments__ClientId: ${PAYOS_CLIENT_ID:-}
+      Payments__ApiKey: ${PAYOS_API_KEY:-}
+      Payments__ChecksumKey: ${PAYOS_CHECKSUM_KEY:-}
+      Vilep__BaseUrl: ${PUBLIC_BASE_URL:-http://localhost:5080}
+      Vilep__ExposeOtpInResponse: ${EXPOSE_OTP:-true}
+      Vilep__EnableDevPayments: ${ENABLE_DEV_PAYMENTS:-true}
+      Encryption__Key: ${ENCRYPTION_KEY:-}
+      Seed__Enabled: ${SEED_ENABLED:-true}
+    ports:
+      - "5080:8080"
+
+  # Optional: serve the Flutter web build (run `flutter build web` first)
+  # web:
+  #   image: nginx:alpine
+  #   container_name: vilep-web
+  #   volumes:
+  #     - ./apps/mobile/build/web:/usr/share/nginx/html:ro
+  #   ports:
+  #     - "8080:80"
+
+volumes:
+  vilep-pg:

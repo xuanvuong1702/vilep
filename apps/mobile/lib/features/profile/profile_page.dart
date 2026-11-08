@@ -46,7 +46,10 @@ class ProfilePage extends ConsumerWidget {
           const SizedBox(width: 6),
         ],
       ),
-      body: ListView(
+      body: PageFrame(
+        background: V.canvas,
+        surface: V.canvas,
+        child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [
           Container(
@@ -206,6 +209,7 @@ class ProfilePage extends ConsumerWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

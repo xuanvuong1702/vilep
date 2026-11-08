@@ -39,7 +39,10 @@ class AppShell extends ConsumerWidget {
           top: false,
           child: SizedBox(
             height: 64,
-            child: Row(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 620),
+                child: Row(
               children: [
                 _NavItem(
                   icon: Icons.explore_outlined,
@@ -92,9 +95,11 @@ class AppShell extends ConsumerWidget {
                 ),
               ],
             ),
+                ),
+              ),
+            ),
           ),
         ),
-      ),
     );
   }
 }

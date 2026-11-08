@@ -21,7 +21,7 @@ class CaseDetailPage extends ConsumerWidget {
     final async = ref.watch(caseDetailProvider(caseId));
 
     return async.when(
-      loading: () => const Scaffold(body: LoadingView(label: 'Đang mở case...')),
+      loading: () => const Scaffold(body: CaseDetailSkeleton()),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: EmptyState(
@@ -50,7 +50,8 @@ class _CaseBody extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: V.surface,
-      body: CustomScrollView(
+      body: PageFrame(
+        child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
@@ -266,6 +267,7 @@ class _CaseBody extends ConsumerWidget {
           ),
         ],
       ),
+      ),
       bottomNavigationBar: _BottomBar(detail: detail, canSupport: canSupport),
     );
   }
@@ -273,6 +275,7 @@ class _CaseBody extends ConsumerWidget {
   Future<void> _share(BuildContext context, WidgetRef ref, CaseSummary s) async {
     final url = '${kApiBase}/share/${s.code}';
     await Clipboard.setData(ClipboardData(text: url));
+    HapticFeedback.selectionClick();
     if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
@@ -406,8 +409,10 @@ class _FundingPanel extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(money(s.raisedAmount),
-                  style: const TextStyle(fontSize: 31, fontWeight: FontWeight.w800, letterSpacing: -1.4, height: 1)),
+              MoneyCounter(
+                amount: s.raisedAmount,
+                style: const TextStyle(fontSize: 31, fontWeight: FontWeight.w800, letterSpacing: -1.4, height: 1),
+              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4, left: 8),
                 child: Text('đã góp / ${money(s.targetAmount)}',
@@ -809,6 +814,7 @@ class _ContributeSheetState extends ConsumerState<ContributeSheet> {
 
   Future<void> _submit() async {
     if (_submitting) return;
+    HapticFeedback.selectionClick();
     if (_amount < widget.detail.minContribution) {
       setState(() => _error = 'Tối thiểu ${money(widget.detail.minContribution)}');
       return;
@@ -853,6 +859,7 @@ class _ContributeSheetState extends ConsumerState<ContributeSheet> {
     });
     try {
       final data = await ref.read(apiProvider).post('/api/v1/dev/pay/${created.contributionId}') as Map<String, dynamic>;
+      HapticFeedback.mediumImpact();
       setState(() {
         _paid = true;
         _successState = data['caseState'] as String?;

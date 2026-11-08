@@ -35,7 +35,8 @@ class NotificationsPage extends ConsumerWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: async.when(
+      body: PageFrame(
+        child: async.when(
         loading: () => const LoadingView(),
         error: (e, _) => EmptyState(emoji: '📡', title: 'Không tải được', body: e is ApiException ? e.message : '$e'),
         data: (state) {
@@ -106,6 +107,7 @@ class NotificationsPage extends ConsumerWidget {
             ),
           );
         },
+      ),
       ),
     );
   }

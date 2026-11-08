@@ -132,7 +132,8 @@ class _CreateCasePageState extends ConsumerState<CreateCasePage> {
                 child: _StepProgress(step: _step),
               ),
       ),
-      body: metaAsync.when(
+      body: PageFrame(
+        child: metaAsync.when(
         loading: () => const LoadingView(),
         error: (e, _) => EmptyState(emoji: '📡', title: 'Không tải được cấu hình', body: '$e'),
         data: (meta) {
@@ -152,6 +153,7 @@ class _CreateCasePageState extends ConsumerState<CreateCasePage> {
             _ => _successStep(),
           };
         },
+      ),
       ),
     );
   }

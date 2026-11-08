@@ -106,9 +106,25 @@ Card dùng `border 1px` + bóng 2 lớp rất nhẹ (`0 1px 2px` + `0 8px 16px` 
 
 ---
 
-## 5. Việc nên làm tiếp (P1.5)
+## 5. Vòng tinh chỉnh 2 (micro-interaction & chiều sâu)
 
-1. **Dark mode**: token đã tách khỏi widget, chỉ cần bảng màu tối + `ThemeMode.system`.
+| Hạng mục | Chi tiết | Vì sao |
+|---|---|---|
+| **Cover art** | `_CoverPatternPainter`: 3 vòng sáng blur + 16 hạt grain, seed từ mã case | Ảnh bìa có chiều sâu như ảnh chụp, mỗi case một khác, không cần asset |
+| **Entrance stagger** | Card feed fade + trượt 14px, lệch nhịp 60ms theo index, 640ms easeOutCubic | Danh sách "sống", mắt bám theo thứ tự, không giật layout |
+| **Money counter** | Số tiền ở case detail đếm 0 → raised trong 900ms | Khoảnh khắc "ví phồng" có cảm xúc, nhấn mạnh tiến độ |
+| **PageFrame** | Nội dung max-width 620, nền canvas hai bên; bottom nav cũng canh giữa | Web/tablet không bị kéo giãn, trông như app chuyên nghiệp |
+| **Search suggestions** | "Tìm gần đây" (lưu prefs, xoá được) + "Tìm nhanh" + số kết quả | Giảm số lần gõ, tăng tỷ lệ tìm thấy case |
+| **Skeleton case detail** | Khung xương đúng bố cục thay spinner | Chuyển cảnh không nhấp nháy, cảm giác nhanh hơn |
+| **Haptics** | `selectionClick` khi copy link/chọn số tiền, `mediumImpact` khi thanh toán xong | Phản hồi vật lý trên mobile, không ảnh hưởng web |
+
+Ảnh desktop (1280×900) trong [`shots/desktop.png`](../shots/desktop.png) cho thấy cột nội dung 620px canh giữa, nav cùng bề rộng.
+
+---
+
+## 6. Việc nên làm tiếp (P1.5)
+
+1. **Dark mode**: cần refactor `V.*` (475 tham chiếu, 194 chỗ `const`) sang `ThemeExtension` + `context.v`; làm theo từng màn để tránh vỡ giao diện.
 2. **Ảnh bìa thật**: thay emoji bằng ảnh người dùng tải (MinIO + URL ký), giữ gradient làm placeholder.
 3. **Motion nâng cao**: shared-axis khi mở case, bottom sheet kéo thả snap 2 mức.
 4. **Empty/error states theo ngữ cảnh**: phân biệt lỗi mạng, lỗi quyền, hết hạn.

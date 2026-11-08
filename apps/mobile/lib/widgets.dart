@@ -297,6 +297,7 @@ class CaseCover extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
+          Positioned.fill(child: CustomPaint(painter: _CoverPatternPainter(seed: item.code))),
           Positioned(
             left: -height * 0.35,
             top: -height * 0.55,
@@ -868,4 +869,154 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ConfettiPainter oldDelegate) => oldDelegate.t != t;
+}
+
+
+/// Soft out-of-focus blobs + grain so covers feel photographed, not flat.
+class _CoverPatternPainter extends CustomPainter {
+  final String seed;
+
+  _CoverPatternPainter({required this.seed});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = math.Random(seed.hashCode);
+    for (var i = 0; i < 3; i++) {
+      final center = Offset(random.nextDouble() * size.width, random.nextDouble() * size.height);
+      final radius = size.shortestSide * (0.28 + random.nextDouble() * 0.42);
+      final light = i.isEven;
+      canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..color = (light ? Colors.white : Colors.black).withValues(alpha: light ? 0.16 : 0.05)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 28),
+      );
+    }
+    final dot = Paint()..color = Colors.white.withValues(alpha: 0.22);
+    for (var i = 0; i < 16; i++) {
+      canvas.drawCircle(
+        Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+        1.1 + random.nextDouble() * 0.6,
+        dot,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CoverPatternPainter oldDelegate) => oldDelegate.seed != seed;
+}
+
+/// Fade + slide entrance, staggered by list index. Pure widget animation: no
+/// controllers to leak, no timers.
+class Entrance extends StatelessWidget {
+  final int index;
+  final Widget child;
+
+  const Entrance({super.key, required this.index, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final start = (index.clamp(0, 6) * 0.06).toDouble();
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 640),
+      curve: Interval(start, 1, curve: Curves.easeOutCubic),
+      builder: (context, value, child) => Opacity(
+        opacity: value.clamp(0, 1),
+        child: Transform.translate(offset: Offset(0, (1 - value) * 14), child: child),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Count-up money label used on the case detail hero panel.
+class MoneyCounter extends StatelessWidget {
+  final int amount;
+  final TextStyle? style;
+
+  const MoneyCounter({super.key, required this.amount, this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: amount.toDouble()),
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, _) => Text(money(value.round()), style: style),
+    );
+  }
+}
+
+/// Centres content on wide screens (web/tablet) while keeping mobile full-bleed.
+class PageFrame extends StatelessWidget {
+  final Widget child;
+  final double maxWidth;
+  final Color? background;
+  final Color? surface;
+
+  const PageFrame({super.key, required this.child, this.maxWidth = 620, this.background, this.surface});
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width > 700;
+    return ColoredBox(
+      color: background ?? (wide ? V.canvas : V.surface),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: ColoredBox(color: surface ?? V.surface, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+/// Loading placeholder for the case detail screen.
+class CaseDetailSkeleton extends StatelessWidget {
+  const CaseDetailSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget bone({double? width, double? height, double radius = 8}) => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(color: const Color(0xFFF1F1EE), borderRadius: BorderRadius.circular(radius)),
+        );
+
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Container(height: 284, color: const Color(0xFFF1F1EE)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              bone(width: 120, height: 10),
+              const SizedBox(height: 14),
+              bone(height: 26, radius: 10),
+              const SizedBox(height: 10),
+              bone(width: 220, height: 26, radius: 10),
+              const SizedBox(height: 22),
+              bone(height: 132, radius: 20),
+              const SizedBox(height: 16),
+              bone(height: 72, radius: 16),
+              const SizedBox(height: 12),
+              bone(height: 58, radius: 16),
+              const SizedBox(height: 26),
+              bone(width: 140, height: 18, radius: 8),
+              const SizedBox(height: 14),
+              bone(height: 12),
+              const SizedBox(height: 8),
+              bone(height: 12),
+              const SizedBox(height: 8),
+              bone(width: 240, height: 12),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

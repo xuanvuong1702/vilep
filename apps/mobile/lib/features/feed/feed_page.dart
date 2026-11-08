@@ -36,7 +36,8 @@ class FeedPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: V.surface,
-      body: SafeArea(
+      body: PageFrame(
+        child: SafeArea(
         bottom: false,
         child: RefreshIndicator(
           color: V.green,
@@ -209,7 +210,10 @@ class FeedPage extends ConsumerWidget {
                     itemCount: feed.items.length,
                     itemBuilder: (context, index) {
                       final item = feed.items[index];
-                      return CaseCard(item: item, onTap: () => context.push('/case/${item.id}'));
+                      return Entrance(
+                        index: index,
+                        child: CaseCard(item: item, onTap: () => context.push('/case/${item.id}')),
+                      );
                     },
                   ),
                 ),
@@ -227,6 +231,7 @@ class FeedPage extends ConsumerWidget {
               ],
             ],
           ),
+        ),
         ),
       ),
     );

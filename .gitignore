@@ -27,3 +27,6 @@ test-data/
 .idea/
 node_modules/
 .env
+
+# local screenshot browser profile
+.edge-profile/

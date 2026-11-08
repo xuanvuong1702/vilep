@@ -45,7 +45,8 @@ class _MyCasesPageState extends ConsumerState<MyCasesPage> {
           ),
         ),
       ),
-      body: _tab == 0
+      body: PageFrame(
+        child: _tab == 0
           ? async.when(
               loading: () => const Padding(
                 padding: EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -97,6 +98,7 @@ class _MyCasesPageState extends ConsumerState<MyCasesPage> {
                 );
               },
             ),
+      ),
     );
   }
 }
@@ -241,6 +243,7 @@ class _MyCaseTile extends ConsumerWidget {
                       final url =
                           '${const String.fromEnvironment('API_BASE', defaultValue: 'http://127.0.0.1:5080')}/share/${item.code}';
                       await Clipboard.setData(ClipboardData(text: url));
+                      HapticFeedback.selectionClick();
                       if (!context.mounted) return;
                       showSnack(context, 'Đã copy link chia sẻ case');
                     },

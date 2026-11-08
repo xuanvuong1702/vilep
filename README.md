@@ -17,6 +17,10 @@ Bản MVP chạy được của **Ví Lép** theo `vi_lep_requirements_v0.4.md`:
 ![Thanh toán](shots/03-contribute-sheet.png)
 ![Giấy chứng nhận](shots/09-certificate.png)
 
+Bản desktop (web) canh cột nội dung 620px:
+
+![Desktop](shots/desktop.png)
+
 ---
 
 ## 1. Chạy trong 5 phút

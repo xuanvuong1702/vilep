@@ -30,3 +30,7 @@ node_modules/
 
 # local screenshot browser profile
 .edge-profile/
+
+# OS noise
+.DS_Store
+Thumbs.db

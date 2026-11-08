@@ -1,0 +1,49 @@
+name: iOS build
+
+# Build iOS trên runner macOS của GitHub (không cần Mac tại máy).
+# Kết quả: Runner.app chưa ký (dùng để kiểm tra compile) — muốn cài máy thật/TestFlight
+# cần thêm signing như mô tả trong docs/IOS.md.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/ios.yml'
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.9'
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Resolve packages
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build iOS (unsigned)
+        run: flutter build ios --release --no-codesign --dart-define=API_BASE=${{ vars.API_BASE || 'https://api.vilep.vn' }}
+
+      - name: Upload Runner.app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Runner-unsigned
+          path: apps/mobile/build/ios/iphoneos/Runner.app
+          if-no-files-found: error
+          retention-days: 14

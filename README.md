@@ -47,6 +47,8 @@ pwsh ../../scripts/build-apk.ps1 -ApiBase http://192.168.1.30:5080
 
 > Máy này đã cài sẵn Android SDK 36 + JDK 21 trong `tools/`, nhưng DSH sandbox chặn tiến trình con của Gradle (aapt2/kotlin worker dùng pipe) nên `flutter build apk` dừng giữa chừng. Chạy `scripts/build-apk.ps1` trên máy/CI không bị sandbox (hoặc trong Android Studio) là ra `app-release.apk`.
 >
+> **iPhone/iOS:** repo đã có thư mục `ios/` (bundle id `vn.vilep.app`), nhưng build iOS **bắt buộc macOS + Xcode** — Windows không build được. Có sẵn workflow CI macOS `.github/workflows/ios.yml`. Chi tiết: [docs/IOS.md](docs/IOS.md).
+>
 > Trên điện thoại, mở `http://<ip-máy-tính>:8080` rồi "Thêm vào màn hình chính" để dùng ngay bản web như app (PWA), không cần APK.
 
 > Cờ build cho demo/screenshot: `--dart-define=DEMO_PHONE=0900000001 --dart-define=SKIP_ONBOARDING=true`

@@ -154,9 +154,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> updateProfile({String? nickname, String? bio, String? avatarKey}) async {
     final api = ref.read(apiProvider);
     final data = await api.put('/api/v1/me', body: {
-      if (nickname != null) 'nickname': nickname,
-      if (bio != null) 'bio': bio,
-      if (avatarKey != null) 'avatarKey': avatarKey,
+      'nickname': ?nickname,
+      'bio': ?bio,
+      'avatarKey': ?avatarKey,
     }) as Map<String, dynamic>;
     state = state.copyWith(user: UserProfile.fromJson(data));
   }
@@ -167,7 +167,7 @@ class AuthController extends Notifier<AuthState> {
       'tier': tier,
       'fullName': fullName,
       'idNumber': idNumber,
-      if (dob != null) 'dob': dob,
+      'dob': ?dob,
     });
     await refreshMe();
   }

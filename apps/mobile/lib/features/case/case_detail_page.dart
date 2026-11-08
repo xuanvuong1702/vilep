@@ -273,7 +273,7 @@ class _CaseBody extends ConsumerWidget {
   }
 
   Future<void> _share(BuildContext context, WidgetRef ref, CaseSummary s) async {
-    final url = '${kApiBase}/share/${s.code}';
+    final url = '$kApiBase/share/${s.code}';
     await Clipboard.setData(ClipboardData(text: url));
     HapticFeedback.selectionClick();
     if (!context.mounted) return;
@@ -315,7 +315,7 @@ class _CaseBody extends ConsumerWidget {
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () async {
-                final uri = Uri.parse('${kApiBase}/api/v1/cases/${s.id}/share-card.svg');
+                final uri = Uri.parse('$kApiBase/api/v1/cases/${s.id}/share-card.svg');
                 if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
               },
               icon: const Icon(Icons.image_outlined, size: 18),

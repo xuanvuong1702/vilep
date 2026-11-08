@@ -23,7 +23,7 @@ import 'state.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   final prefs = ref.watch(prefsProvider);
   final refresh = ValueNotifier<int>(0);
-  ref.listen(authProvider, (_, __) => refresh.value++);
+  ref.listen(authProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;

@@ -53,7 +53,7 @@ class NotificationsPage extends ConsumerWidget {
             child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
               itemCount: state.items.length,
-              separatorBuilder: (_, __) => const Divider(height: 24),
+              separatorBuilder: (_, _) => const Divider(height: 24),
               itemBuilder: (context, index) {
                 final item = state.items[index];
                 return InkWell(

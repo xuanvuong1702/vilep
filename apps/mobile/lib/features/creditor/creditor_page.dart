@@ -238,7 +238,7 @@ class _CreditorPageState extends ConsumerState<CreditorPage> {
                     const Spacer(),
                     TextButton(
                       onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: '${kApiBase}/share/${invite.caseCode}'));
+                        await Clipboard.setData(ClipboardData(text: '$kApiBase/share/${invite.caseCode}'));
                         if (!mounted) return;
                         showSnack(context, 'Đã copy link case');
                       },
@@ -246,7 +246,7 @@ class _CreditorPageState extends ConsumerState<CreditorPage> {
                     ),
                   ],
                 ),
-                Text('${kApiBase}/share/${invite.caseCode}',
+                Text('$kApiBase/share/${invite.caseCode}',
                     style: const TextStyle(fontSize: 11.5, color: V.inkSoft)),
               ],
             ),

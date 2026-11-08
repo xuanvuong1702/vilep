@@ -99,7 +99,7 @@ class CertificatePage extends ConsumerWidget {
                 FilledButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(
-                        ClipboardData(text: '${kApiBase}/share/${s.code}'));
+                        ClipboardData(text: '$kApiBase/share/${s.code}'));
                     if (!context.mounted) return;
                     showSnack(context, 'Đã copy link chứng nhận');
                   },
